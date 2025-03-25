@@ -24,12 +24,12 @@ Machine Code
 `eax` is a register
 Other general Purpose Registers
 
-Register	        32-bit     64-bit Name	Common Use
-Accumulator	      EAX	       RAX	Arithmetic, return values
-Base	            EBX	       RBX	Memory addressing (pointer-like)
-Counter	          ECX	       RCX	Loop counters (e.g., for loops)
-Data	            EDX	       RDX	Extended arithmetic (e.g., 64-bit results)
-Source Index	    ESI	       RSI	String/memory operations (source)
-Destination Index	EDI	       RDI	String/memory operations (destination)
-Stack Pointer	    ESP	       RSP	Tracks the top of the stack
+Register	        32-bit     64-bit Name	Common Use <br>
+Accumulator	      EAX	       RAX	Arithmetic, return values <br>
+Base	            EBX	       RBX	Memory addressing (pointer-like) <br>
+Counter	          ECX	       RCX	Loop counters (e.g., for loops) <br>
+Data	            EDX	       RDX	Extended arithmetic (e.g., 64-bit results) <br>
+Source Index	    ESI	       RSI	String/memory operations (source) <br>
+Destination Index	EDI	       RDI	String/memory operations (destination) <br>
+Stack Pointer	    ESP	       RSP	Tracks the top of the stack <br>
 Base Pointer	    EBP	       RBP	Used for function stack frames
