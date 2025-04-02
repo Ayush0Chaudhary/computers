@@ -96,3 +96,14 @@ Its like a person sitting in a dark room with a lamp, who is just excuting the t
   
 
 
+### Syscall
+1. If userland dont have access to I/O, how does camera app manages to save photos etc etc
+   - Here comes the Syscall, this help userland get access to accessed privilages of kernel Mode
+   - This access is gained with the help of mechanism call `System interrupts`
+       - Software interrupts are a mechanism used by processors to accomplish these transfers. They're like a `help call` to the kernel, allowing user-level tasks to request and utilize kernel services. When a software interrupt occurs, the `processor temporarily halts the current user-level task`, `hands over control to the kernel`, and then waits for the kernel to complete the requested service before resuming the user-level task.
+       - The Interrupt Vector Table (IVT) is a data structure used by operating systems to manage interrupt handling in a computer system. It's essentially a table that contains a list of addresses corresponding to specific interrupts, each address pointing to a routine (also known as an interrupt handler) that will be executed when the corresponding interrupt occurs.
+       - **(OLD WAYS)** If a hardware device generates an interrupt, the processor will consult the IVT to determine the appropriate interrupt handler to execute. The handler will then manage the interrupt, perform any necessary tasks, and return control back to the user-level task that was interrupted.
+       - **[EXTRA]** Userland programs can use an instruction like `INT` which tells the processor to look up the given interrupt number in the `IVT`, and it uses an instruction like IRET to tell the CPU to switch back to user mode and return the instruction pointer to where it was when the interrupt was triggered.
+       - IVT is preconfigured in `Kernel Mode` and stored in `RAM` during the boot process
+   - **[EXTRA]** Syscall, their implementation can very a lot, and we cannot expect the developer to understand the syscall, as they vary for different OS, and same OS diff versions. So they provide wrapper lib (libc in UNIX)
+    
