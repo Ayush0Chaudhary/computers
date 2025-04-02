@@ -80,10 +80,19 @@ Its like a person sitting in a dark room with a lamp, who is just excuting the t
 3. Whats stopping other program from using instruction of other programs? (For example, why cant i write program to do something in my browser which it has not given me API for?)
 
 
-#### Kernal
+#### Kernel
 1. When you boot up your computer, the instruction pointer starts at a program somewhere. That program is the kernel.
 2. kernel has near-full access of RAM
 3. Is in charge of running software installed on your computer (known as userland programs)
-4. Example of Kernal ? (L---x)
+4. Example of Kernel ? (L---x)
+
+#### 2 Rings of level of security  
+1. User Mode (User Ring) [Less Access]
+2. Kernel Mode (Kernal Ring) [All Sccess]
+   This CPL data is stored in the Register `cs`, which is 2bit register.
+   1. `00` -> Kernel Mode
+   2. `11` -> User Mode
+   3. `01` and `10` -> (Not used in latest systems) Used by old architecture mainly for driver custom privilage
+  
 
 
