@@ -106,4 +106,41 @@ Its like a person sitting in a dark room with a lamp, who is just excuting the t
        - **[EXTRA]** Userland programs can use an instruction like `INT` which tells the processor to look up the given interrupt number in the `IVT`, and it uses an instruction like IRET to tell the CPU to switch back to user mode and return the instruction pointer to where it was when the interrupt was triggered.
        - IVT is preconfigured in `Kernel Mode` and stored in `RAM` during the boot process
    - **[EXTRA]** Syscall, their implementation can very a lot, and we cannot expect the developer to understand the syscall, as they vary for different OS, and same OS diff versions. So they provide wrapper lib (libc in UNIX)
-    
+
+
+## Why is your CPU not Stuck in single loop  
+1. Multi-core processor ?
+### Fake parallelism  
+You give a process sometime on the CPU and move onto next process when time is up.  
+
+  
+2. Who decide process time is up ?
+All the computer comes with a `Timer Chips`  
+
+3. How do they work ?
+- OS: Bro Going for executing the this dude Paint App Program
+- Time Chip: Ok bro, will wake you up after 1ms (Because I am Linux CFS - Completly Fair Scheduler)
+- OS: ok working my process, going to the Userland
+- Timer Chip: Time to move on bro
+- OS: Ok let me save my current progress 
+- Timer Chip: Cool!
+- OS: Ok, time to move on to Slack, gotta show him his notifications.
+
+Above process is called `preemptive multitasking`
+
+### Timeslices (Quantums)
+Duration the Timer Chip run the program.
+Q. What is the problem with too small and too big timeslice ?  
+ans. `Too Small`: Process switching is computationally expensive.
+     `Too Big`: Not anymore multi tasking, processes are stuck  
+1. how do you calculage this timeslice?
+   1. `fixed timeslice round-robin`: 10ms fixed time. Not very efficient.
+   2. `Target Latency`: the longest time a process should wait before running again. If OS target latency is 6ms. each process gets 1.5ms
+      - if too many process, have a min limit, because timeslice will become too small.
+      - Linux’s scheduler uses a target latency of 6 ms and a minimum granularity of 0.75 ms.
+   3. `Completely Fair Scheduler`: Used by Linux since 2007, interesting stuff, you can read about it. https://docs.kernel.org/scheduler/sched-design-CFS.html
+
+
+### History
+### `Cooperative Multitasking1`  
+Rather than the OS deciding when to preempt programs, the programs themselves would choose to yield to the OS. They would trigger a software interrupt to say, “hey, you can let another program run now.” These explicit yields were the only way for the OS to regain control and switch to the next scheduled process.
