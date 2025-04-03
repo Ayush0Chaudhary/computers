@@ -257,6 +257,15 @@ rest have same meaning
 		- Detect file formats (ELF, script, etc.).
 		- Read shebangs (e.g., #!/usr/bin/python).
 		- Decide how to execute the file.
+```c
+/* file -> include/linux/binfmts.h */
+	char buf[BINPRM_BUF_SIZE];
+```
+```c
+/* file -> include/uapi/linux/binfmts.h */
+/* sizeof(linux_binprm->buf) */
+#define BINPRM_BUF_SIZE 256
+```
 
 
 
@@ -314,10 +323,60 @@ This function usually does the following:
 
 Example of a recursive chain:
 
-```pqsql
+```sql
 binfmt_script  →  binfmt_script  →  binfmt_elf
 (script.py)       (wrapper.sh)        (python)
 ```
 
 At the end of this chain, an actual ELF binary (e.g., Python) gets executed.
+
+
+#### How does scripts work ?
+```c
+ // fs/binfmt_script.c
+	/* Not ours to exec if we don't start with "#!". */
+	if ((bprm->buf[0] != '#') || (bprm->buf[1] != '!'))
+		return -ENOEXEC;
+```
+[code link](https://github.com/torvalds/linux/blob/22b8cc3e78f5448b4c5df00303817a9137cd663f/fs/binfmt_script.c#L40-L42)
+
+So if it does start with `#!`, it reads the interpretor path until `newline` or `space`. 
+
+- 2 Point to be noted my lord!
+	1. More than 256 byte interpretor will be ignored and everything will fail. Earlier it was 128.
+ 	2. Argument Modification.
+- Example
+1. Let’s look at a sample execve call:
+	- `execve("./script", [ "A", "B", "C" ], []);`
+2. This hypothetical script file has the following shebang as its first line:
+	- `#!/usr/bin/node --experimental-module`
+3. The modified argv finally passed to the Node interpreter will be:
+	- `[ "/usr/bin/node", "--experimental-module", "./script", "B", "C" ]`
+
+ #### `binfmt_misc`
+- binfmt_misc is a flexible way to define new executable formats without kernel modifications.
+[EXTRA]
+run
+```cli
+ls ../../proc/sys/fs/binfmt_misc/
+```
+this will show all the registered formats
+```
+(base) panda@panda-LOQ-15IRX9:~$ cat  ../../proc/sys/fs/binfmt_misc/python
+enabled
+interpreter /usr/bin/python3
+flags: 
+offset 0
+magic 89505954484f4e
+
+```
+if you wanna run your script like below 
+```
+$ ./test.xyz
+```
+instead of 
+```
+$ python text.py
+```
+you can use binfmt_misc
 
