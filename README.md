@@ -261,5 +261,10 @@ rest have same meaning
 
 
 
+### What’s a UAPI?
+- UAPI (Userspace API) is a part of the Linux kernel that `exposes certain constants and structures to user-space programs`.
+- Example: `BINPRM_BUF_SIZE` is defined in include/uapi/linux/binfmts.h, making its value available to user-space programs.
+- Before 2012, kernel and user-space headers were mixed together. The UAPI directory was created to separate them and improve maintainability.
+
 
 
