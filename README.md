@@ -232,5 +232,34 @@ AT_FDCWD -> relative to current directory
 rest have same meaning
 ```
 
+- do_execveat_common starts by setting up linux_binprm, which holds all the info needed to run a new process.
+- It reads the first `256 bytes` of the executable to figure out what kind of file it is. Earlier it was `128 bytes`. for example `#!/usr/bin/python`
+- If the file is a script, it finds the interpreter and prepares to run that instead.
+- UAPI ensures some constants are exposed to user-space for better interaction with the kernel.
+
+#### `linux_binprm`
+1. Virtual Memory Setup
+
+	- Structures like mm_struct (memory management) and vm_area_struct (virtual memory regions) are initialized.
+	- This prepares the memory for the new program.
+2. Argument Count (argc) and Environment Count (envc)
+	- The number of command-line arguments (argc) and environment variables (envc) are counted and stored.
+	- These will be passed to the new program when it starts.
+
+3. Filename and Interpreter (filename & interp)
+	- `filename`: Stores the path of the file being executed.
+	- `interp`: If the program is an interpreted script (like Python), this field will point to the interpreter (e.g., /usr/bin/python instead of script.py).
+	- Initially, filename == interp, but they may diverge if the script has a shebang (#!).
+
+4. Buffer (buf) for File Detection
+	- The first 256 bytes of the executable file are read into buf (size defined by BINPRM_BUF_SIZE).
+	- The kernel uses this to:
+		- Detect file formats (ELF, script, etc.).
+		- Read shebangs (e.g., #!/usr/bin/python).
+		- Decide how to execute the file.
+
+
+
+
 
 
