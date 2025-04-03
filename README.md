@@ -267,4 +267,57 @@ rest have same meaning
 - Before 2012, kernel and user-space headers were mixed together. The UAPI directory was created to separate them and improve maintainability.
 
 
+### Step 2: Identifying the Program Type (Using binfmt Handlers)
+
+#### 1. What Are binfmt Handlers?
+- Handlers are pieces of code that understand different executable formats (e.g., ELF, shell scripts, Python scripts).
+- Each handler is responsible for loading and preparing the program for execution.
+
+- The handlers are found in files like:
+	- `fs/binfmt_elf.c` → Handles ELF binaries (compiled executables).
+	- `fs/binfmt_script.c` → Handles script files (#!/bin/bash or #!/usr/bin/python).
+	- `fs/binfmt_flat.c` → Used for embedded systems with flat binaries.
+
+#### How Does the Kernel Identify the Program Type?
+Each handler has a function called `load_binary()`, which checks if it can handle the file.  
+
+This function usually does the following:
+- Checks for `Magic Numbers` (File Signatures)
+	- Many file types start with special bytes called magic numbers.
+	- Example:
+		- ELF binaries start with: 0x7F 45 4C 46 (0x7F ELF).
+		- Scripts usually start with #! (shebang).
+
+- Reads the First Few Bytes (buf from linux_binprm)
+	- The kernel loads the first 256 bytes of the file into a buffer (buf).
+	- The handler examines these bytes to detect the format.
+
+- Checks File Extensions (Sometimes)
+	- Some formats may rely on file extensions (less common in Linux).
+
+#### If the Handler Recognizes the Format
+- It prepares the program for execution.
+	- Returns a success code.
+- If the Handler Does NOT Recognize the Format
+	- It returns an error, and the kernel tries the next handler.
+
+### Recursive Execution (Chained Interpretation)
+- Sometimes, a file isn’t directly executable but is instead a script that requires an interpreter.
+
+- The kernel resolves this recursively:
+
+	- Example: Running a Python script (script.py with #!/usr/bin/python):
+		- binfmt_script sees the #! and finds python.
+		- binfmt_elf loads python, which is an ELF executable.
+		- Execution starts from the python binary.
+		- If the interpreter itself is another script, this process repeats.
+
+Example of a recursive chain:
+
+```pqsql
+binfmt_script  →  binfmt_script  →  binfmt_elf
+(script.py)       (wrapper.sh)        (python)
+```
+
+At the end of this chain, an actual ELF binary (e.g., Python) gets executed.
 
