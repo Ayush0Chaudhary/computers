@@ -144,3 +144,93 @@ ans. `Too Small`: Process switching is computationally expensive.
 ### History
 ### `Cooperative Multitasking1`  
 Rather than the OS deciding when to preempt programs, the programs themselves would choose to yield to the OS. They would trigger a software interrupt to say, “hey, you can let another program run now.” These explicit yields were the only way for the OS to regain control and switch to the next scheduled process.
+
+
+## How to run a program? 
+![Progrm flow](https://cpu.land/images/linux-program-execution-process.png)
+
+1. `execve` :  It loads a program and, if successful, replaces the current process with that program  
+### `execve` Call Signature
+```c
+int execve(const char *filename, char *const argv[], char *const envp[]);
+```
+
+#### filename (Program Path)
+
+This is the path to the executable you want to run.
+
+`Example: "/bin/ls" if you want to run the ls command.`
+
+#### argv (Arguments List)
+
+A list of strings passed to the new program.
+
+The last item in the list is `NULL` (this helps the system know where the list ends).
+
+`Example: If you run ls -l /home, the argv list would be:`
+```
+["ls", "-l", "/home", NULL]
+```
+#### envp (Environment Variables List)
+
+Another list of strings, but these are environment variables that the program can access.
+
+Also NULL-terminated (to mark the end).
+
+Usually written as KEY=VALUE pairs.
+
+Example:
+```
+["PATH=/usr/bin", "HOME=/home/user", NULL]
+```
+### Define execve
+
+Below is Macro defining the `execve`
+```c
+SYSCALL_DEFINE3(execve,
+		const char __user *, filename,
+		const char __user *const __user *, argv,
+		const char __user *const __user *, envp)
+{
+	return do_execve(getname(filename), argv, envp);
+}
+```
+```
+const char * → A string (character array).
+
+__user → The data comes from user space (not kernel space).
+
+const char __user *const __user * → A pointer to an array of user-space strings (like argv and envp).
+```
+
+The `getname` return the filename struct.  
+It copies the string from user space to kernel space and does some usage tracking things  
+
+```c
+struct filename {
+	const char		*name;	/* pointer to actual string */
+	const __user char	*uptr;	/* original userland pointer */
+	int			refcnt;
+	struct audit_names	*aname;
+	const char		iname[];
+};
+```
+
+The `do_execve` is defined below  
+```c
+static int do_execve(struct filename *filename,
+	const char __user *const __user *__argv,
+	const char __user *const __user *__envp)
+{
+	struct user_arg_ptr argv = { .ptr.native = __argv }; /* Clean code for Kernel */
+	struct user_arg_ptr envp = { .ptr.native = __envp }; /* Clean code for Kernel */
+	return do_execveat_common(AT_FDCWD, filename, argv, envp, 0);
+}
+```
+```
+AT_FDCWD -> relative to current directory
+rest have same meaning
+```
+
+
+
