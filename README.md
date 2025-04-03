@@ -380,3 +380,270 @@ $ python text.py
 ```
 you can use binfmt_misc
 
+- [extra] This binfmt_misc system is often used by Java installations, configured to detect class files by their `0xCAFEBABE` magic bytes and JAR files by their extension.
+
+## ELF
+Executable and Linkable File
+- All the programs at the end become a ELF file(elf in Linux, Mach-O in MacOS, and .exe uses `Portable Executable` format in Windows)
+- Linus support other format too, but ELF is most common
+![ELF structure](https://cpu.land/images/elf-file-structure.png)
+
+### Elf Header
+- `Identifies the processor architecture`: It tells the system whether the binary is for x86, ARM, RISC-V, or another architecture.
+- `Specifies the binary type`: It can be `Executable` → A standalone program that runs on its own or `Shared Library` → A dynamically linked library (.so file) used by other programs.
+- `Defines the program’s entry point`: such as `Program header` and `section` Table
+
+[TRY OUT YOURSELF]
+```
+base) panda@panda-LOQ-15IRX9:~/pr/go$ readelf -h /bin/ls
+ELF Header:
+  Magic:   7f 45 4c 46 02 01 01 00 00 00 00 00 00 00 00 00 
+  Class:                             ELF64
+  Data:                              2's complement, little endian
+  Version:                           1 (current)
+  OS/ABI:                            UNIX - System V
+  ABI Version:                       0
+  Type:                              DYN (Position-Independent Executable file)
+  Machine:                           Advanced Micro Devices X86-64
+  Version:                           0x1
+  Entry point address:               0x6d30
+  Start of program headers:          64 (bytes into file)
+  Start of section headers:          140328 (bytes into file)
+  Flags:                             0x0
+  Size of this header:               64 (bytes)
+  Size of program headers:           56 (bytes)
+  Number of program headers:         13
+  Size of section headers:           64 (bytes)
+  Number of section headers:         31
+  Section header string table index: 30
+```
+
+### Program Header Table
+How It Works
+Each entry in the Program Header Table provides:
+
+1. Where its data is in the ELF file  
+Example: "Start reading data from byte 500 in the file."
+
+2. Where to place this data in memory (if needed)  
+Example: "Load this at memory address 0x8048000."
+
+3. How much memory it needs  
+Example:  
+- "It takes 4 KB in the file but needs 8 KB in memory."
+- The extra 4 KB will be filled with zeroes (used for uninitialized variables → BSS segment).
+4. Permissions (Flags)
+	- PF_R → Readable
+	- PF_W → Writable
+	- PF_X → Executable
+Example: "This section contains code, so set it as PF_R | PF_X."
+
+```
+(base) panda@panda-LOQ-15IRX9:~/pr/go$ readelf -l /bin/ls
+
+Elf file type is DYN (Position-Independent Executable file)
+Entry point 0x6d30
+There are 13 program headers, starting at offset 64
+
+Program Headers:
+  Type           Offset             VirtAddr           PhysAddr
+                 FileSiz            MemSiz              Flags  Align
+  PHDR           0x0000000000000040 0x0000000000000040 0x0000000000000040
+                 0x00000000000002d8 0x00000000000002d8  R      0x8
+  INTERP         0x0000000000000318 0x0000000000000318 0x0000000000000318
+                 0x000000000000001c 0x000000000000001c  R      0x1
+      [Requesting program interpreter: /lib64/ld-linux-x86-64.so.2]
+  LOAD           0x0000000000000000 0x0000000000000000 0x0000000000000000
+                 0x00000000000036f8 0x00000000000036f8  R      0x1000
+  LOAD           0x0000000000004000 0x0000000000004000 0x0000000000004000
+                 0x0000000000014db1 0x0000000000014db1  R E    0x1000
+  LOAD           0x0000000000019000 0x0000000000019000 0x0000000000019000
+                 0x00000000000071b8 0x00000000000071b8  R      0x1000
+  LOAD           0x0000000000020f30 0x0000000000021f30 0x0000000000021f30
+                 0x0000000000001348 0x00000000000025e8  RW     0x1000
+  DYNAMIC        0x0000000000021a38 0x0000000000022a38 0x0000000000022a38
+                 0x0000000000000200 0x0000000000000200  RW     0x8
+  NOTE           0x0000000000000338 0x0000000000000338 0x0000000000000338
+                 0x0000000000000030 0x0000000000000030  R      0x8
+  NOTE           0x0000000000000368 0x0000000000000368 0x0000000000000368
+                 0x0000000000000044 0x0000000000000044  R      0x4
+  GNU_PROPERTY   0x0000000000000338 0x0000000000000338 0x0000000000000338
+                 0x0000000000000030 0x0000000000000030  R      0x8
+  GNU_EH_FRAME   0x000000000001e170 0x000000000001e170 0x000000000001e170
+                 0x00000000000005ec 0x00000000000005ec  R      0x4
+  GNU_STACK      0x0000000000000000 0x0000000000000000 0x0000000000000000
+                 0x0000000000000000 0x0000000000000000  RW     0x10
+  GNU_RELRO      0x0000000000020f30 0x0000000000021f30 0x0000000000021f30
+                 0x00000000000010d0 0x00000000000010d0  R      0x1
+
+ Section to Segment mapping:
+  Segment Sections...
+   00     
+   01     .interp 
+   02     .interp .note.gnu.property .note.gnu.build-id .note.ABI-tag .gnu.hash .dynsym .dynstr .gnu.version .gnu.version_r .rela.dyn .rela.plt 
+   03     .init .plt .plt.got .plt.sec .text .fini 
+   04     .rodata .eh_frame_hdr .eh_frame 
+   05     .init_array .fini_array .data.rel.ro .dynamic .got .data .bss 
+   06     .dynamic 
+   07     .note.gnu.property 
+   08     .note.gnu.build-id .note.ABI-tag 
+   09     .note.gnu.property 
+   10     .eh_frame_hdr 
+   11     
+   12     .init_array .fini_array .data.rel.ro .dynamic .got 
+```
+
+#### Section Table
+
+ Detailed Explanation of Each Section
+1. `.text` (Machine Code)
+Stores the executable instructions of the program.
+
+Marked as read-only and executable (SHF_ALLOC, SHF_EXECINSTR).
+
+When the CPU executes a program, it starts here!
+
+2. `.data` (Initialized Global Variables)
+Holds initialized global/static variables (e.g., int x = 5;).
+
+Read/write section (SHF_ALLOC, SHF_WRITE).
+
+Loaded into memory as part of the LOAD segment.
+
+3. `.bss` (Uninitialized Variables)
+Holds uninitialized global/static variables (e.g., int y;).
+
+Doesn't take up space in the ELF file (SHT_NOBITS).
+
+Memory is allocated at runtime and initialized to zero.
+
+SHF_ALLOC, SHF_WRITE flags (allocated and writable).
+
+4. `.rodata` (Read-Only Data)
+Stores constants and string literals (printf("Hello")).
+
+Read-only (SHF_ALLOC).
+
+Prevents accidental modification.
+
+5. `.shstrtab` (Section Header String Table)
+Stores names of sections (e.g., .text, .data).
+
+Each section header entry contains an offset into .shstrtab.
+
+Makes parsing easier (fixed-size numbers instead of variable strings).
+
+6. `.symtab` (Symbol Table)
+Stores function and variable names.
+
+Used by linkers and debuggers.
+
+Stripped in production binaries for security and size.
+
+7. `.strtab` (String Table)
+Stores string names for symbols in .symtab.
+
+Keeps .symtab entries compact (by using offsets).
+
+8. .dynamic (Dynamic Linking Info)
+Stores information for dynamically linked libraries (libc.so, etc.).
+
+Used by dynamic loaders like ld.so.
+
+`OFFSET` -> How many bytes into the binary file is a particular peice of code is?
+- This means the .text section starts at byte 2432 (decimal) inside the ELF file.
+
+```
+(base) panda@panda-LOQ-15IRX9:~/pr/go$ readelf -S /bin/ls
+There are 31 section headers, starting at offset 0x22428:
+
+Section Headers:
+  [Nr] Name              Type             Address           Offset
+       Size              EntSize          Flags  Link  Info  Align
+  [ 0]                   NULL             0000000000000000  00000000
+       0000000000000000  0000000000000000           0     0     0
+  [ 1] .interp           PROGBITS         0000000000000318  00000318
+       000000000000001c  0000000000000000   A       0     0     1
+  [ 2] .note.gnu.pr[...] NOTE             0000000000000338  00000338
+       0000000000000030  0000000000000000   A       0     0     8
+  [ 3] .note.gnu.bu[...] NOTE             0000000000000368  00000368
+       0000000000000024  0000000000000000   A       0     0     4
+  [ 4] .note.ABI-tag     NOTE             000000000000038c  0000038c
+       0000000000000020  0000000000000000   A       0     0     4
+  [ 5] .gnu.hash         GNU_HASH         00000000000003b0  000003b0
+       0000000000000050  0000000000000000   A       6     0     8
+  [ 6] .dynsym           DYNSYM           0000000000000400  00000400
+       0000000000000c00  0000000000000018   A       7     1     8
+  [ 7] .dynstr           STRTAB           0000000000001000  00001000
+       0000000000000614  0000000000000000   A       0     0     1
+  [ 8] .gnu.version      VERSYM           0000000000001614  00001614
+       0000000000000100  0000000000000002   A       6     0     2
+  [ 9] .gnu.version_r    VERNEED          0000000000001718  00001718
+       00000000000000f0  0000000000000000   A       7     2     8
+  [10] .rela.dyn         RELA             0000000000001808  00001808
+       0000000000001530  0000000000000018   A       6     0     8
+  [11] .rela.plt         RELA             0000000000002d38  00002d38
+       00000000000009c0  0000000000000018  AI       6    25     8
+  [12] .init             PROGBITS         0000000000004000  00004000
+       000000000000001b  0000000000000000  AX       0     0     4
+  [13] .plt              PROGBITS         0000000000004020  00004020
+       0000000000000690  0000000000000010  AX       0     0     16
+  [14] .plt.got          PROGBITS         00000000000046b0  000046b0
+       0000000000000040  0000000000000010  AX       0     0     16
+  [15] .plt.sec          PROGBITS         00000000000046f0  000046f0
+       0000000000000680  0000000000000010  AX       0     0     16
+  [16] .text             PROGBITS         0000000000004d70  00004d70
+       0000000000014032  0000000000000000  AX       0     0     16
+  [17] .fini             PROGBITS         0000000000018da4  00018da4
+       000000000000000d  0000000000000000  AX       0     0     4
+  [18] .rodata           PROGBITS         0000000000019000  00019000
+       000000000000516f  0000000000000000   A       0     0     32
+  [19] .eh_frame_hdr     PROGBITS         000000000001e170  0001e170
+       00000000000005ec  0000000000000000   A       0     0     4
+  [20] .eh_frame         PROGBITS         000000000001e760  0001e760
+       0000000000001a58  0000000000000000   A       0     0     8
+  [21] .init_array       INIT_ARRAY       0000000000021f30  00020f30
+       0000000000000008  0000000000000008  WA       0     0     8
+  [22] .fini_array       FINI_ARRAY       0000000000021f38  00020f38
+       0000000000000008  0000000000000008  WA       0     0     8
+  [23] .data.rel.ro      PROGBITS         0000000000021f40  00020f40
+       0000000000000af8  0000000000000000  WA       0     0     32
+  [24] .dynamic          DYNAMIC          0000000000022a38  00021a38
+       0000000000000200  0000000000000010  WA       7     0     8
+  [25] .got              PROGBITS         0000000000022c38  00021c38
+       00000000000003c8  0000000000000008  WA       0     0     8
+  [26] .data             PROGBITS         0000000000023000  00022000
+       0000000000000278  0000000000000000  WA       0     0     32
+  [27] .bss              NOBITS           0000000000023280  00022278
+       0000000000001298  0000000000000000  WA       0     0     32
+  [28] .gnu_debugaltlink PROGBITS         0000000000000000  00022278
+       0000000000000049  0000000000000000           0     0     1
+  [29] .gnu_debuglink    PROGBITS         0000000000000000  000222c4
+       0000000000000034  0000000000000000           0     0     4
+  [30] .shstrtab         STRTAB           0000000000000000  000222f8
+       000000000000012f  0000000000000000           0     0     1
+Key to Flags:
+  W (write), A (alloc), X (execute), M (merge), S (strings), I (info),
+  L (link order), O (extra OS processing required), G (group), T (TLS),
+  C (compressed), x (unknown), o (OS specific), E (exclude),
+  D (mbind), l (large), p (processor specific)
+```
+
+## Linking
+
+There is 2 type of linking, static and dynamic
+
+![static vs dynamic linking](https://cpu.land/images/static-vs-dynamic-linking.png)
+
+1. `Dynamic Linking` -> We say we need this lib  
+2. `Static Linking`->  We add the needed lib in the binary to be distributed  
+
+
+#### Shared Libraries Across Operating Systems
+- **Linux**: Uses `.so` (Shared Object) files, which are ELF files containing a `.dynsym` section that exports symbols for dynamic linking.
+- **Windows**: Uses `.dll` (Dynamic Link Library) files, which serve the same purpose but are formatted differently.
+- **macOS**: Uses `.dylib` (Dynamically Linked Library) files, following a similar approach to dynamic linking.
+
+1. dynamic load the entire code of Library in memory
+2. Which method is better for computer in general, dynamic or static ? (Static method copies a certain part of shared lib code)
+
