@@ -658,6 +658,18 @@ There is 2 type of linking, static and dynamic
 2. How Are Processes Created, like first process? (Fork, Execve, and the First Process)
 
 Answer 1: **Memory is Fake!**  
+**Virtual Memory** : This is a memory given to a program, where all they think they have entire table
+**Memory Management Unit (MMU)**: Gives a actual location in RAM when CPU give virtual memory.
+![diagram of how CPU and MMU works](https://cpu.land/images/virtual-memory-mmu-example.png)
+
+
+1. Each process have a paging table which is basically a dictionary.
+2. This helps to point to exact locatoin in the real memory, and offset is bassically same. (How ?)
+
+
+![h](https://cpu.land/images/4kib-paging-address-breakdown.png)
+
+![ff](https://cpu.land/images/process-virtual-memory-mapping.png)
 
 
 
