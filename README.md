@@ -647,3 +647,26 @@ There is 2 type of linking, static and dynamic
 1. dynamic load the entire code of Library in memory
 2. Which method is better for computer in general, dynamic or static ? (Static method copies a certain part of shared lib code)
 
+
+#### Excecution
+1. Special Library load stuf into your computer RAM. Dynamicaly linked library are loaded, and their jump pointer are created. etc etc... Whole complex process.
+2. We remove all the argc, argv, environment variable from the registers.
+
+
+## 2 Questions
+1. Why Don’t Processes Overlap in Memory? (Virtual Memory & MMU)   
+2. How Are Processes Created, like first process? (Fork, Execve, and the First Process)
+
+Answer 1: **Memory is Fake!**  
+
+
+
+```
+63          47          38          29          20          11          0
+┌───────────┬───────────┬───────────┬───────────┬───────────┬───────────┐
+│   SIGN    │   PML4    │   PDPT    │    PD     │    PT     │  OFFSET   │
+└───────────┴───────────┴───────────┴───────────┴───────────┴───────────┘
+```
+
+
+
