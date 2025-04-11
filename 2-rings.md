@@ -1,4 +1,3 @@
-Here's a more detailed explanation of **CPU privilege rings**, focusing on the two primary modes (User and Kernel) and how they work in modern systems:
 
 ---
 
