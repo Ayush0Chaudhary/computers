@@ -1,28 +1,28 @@
-# Computers
+# How Computers Work
 
-Computers are simple: Dont be scared, if you feel this is simple, because at its core, it is.
+Computers are fundamentally simple machines that follow basic principles. If this seems straightforward - good! That means you're understanding the core concepts correctly.
 
-## Architecture
-INTEL 4004 first cpu
+## Computer Architecture Basics
 
-![Screenshot from 2025-03-25 22-19-35](https://github.com/user-attachments/assets/67837c2e-2e09-4b62-a116-fd5c246ccc1b)
-Federico Faggins
-![Screenshot from 2025-03-25 22-20-38](https://github.com/user-attachments/assets/738db1d0-4ab1-4808-9b66-e8514d8289ba)
+### Historical Context
+- **Intel 4004** (1971): The world's first commercially available microprocessor
+- **Key Figure**: Federico Faggin, lead designer of the 4004
+  ![Intel 4004 Chip](https://github.com/user-attachments/assets/67837c2e-2e09-4b62-a116-fd5c246ccc1b)
+  ![Federico Faggin](https://github.com/user-attachments/assets/738db1d0-4ab1-4808-9b66-e8514d8289ba)
 
+### From Code to Execution
+1. **Instructions**: Fundamental operations (like single lines of code)
+2. **Machine Code**: Binary instructions the CPU understands directly
+3. **Assembly Code**: Human-readable representation of machine code
 
-Instructions: its is like line of code
-
-Machine Code: set of instructions
-
-Using tool https://defuse.ca/online-x86-assembler.htm#disassembly
-
-Assembly Code (For Humans):
+#### Example Conversion:
 ```assembly
-add eax, 512
-sub eax, 200
+; Assembly (Human-readable)
+add eax, 512  ; Add 512 to EAX register
+sub eax, 200  ; Subtract 200 from EAX register
 ```
-Machine Code 
-```binary
+```json
+; Machine Code (Binary)
 0: 05 00 02 00 00     add  eax,0x200
 5: 2d c8 00 00 00     sub  eax,0xc8
 ```
