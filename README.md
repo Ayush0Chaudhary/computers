@@ -56,9 +56,9 @@ pointer -> instruction 2 <br>
 
 
 ##### Other Aspects:  
-1. How will the instruction pointer behave?
-  a. reusable instruction needed to be used.
-  b. if else like conditional statements instruction.
+1. How will the instruction pointer behave?  
+  a. reusable instruction needed to be used.  
+  b. if else like conditional statements instruction.  
 
 ##### Registers (in detail):  
 1. Registers are small storage buckets that are extremely fast for the CPU to read and write to
