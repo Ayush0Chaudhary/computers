@@ -186,7 +186,8 @@ Example:
 ```
 ### Define execve
 
-Below is Macro defining the `execve`
+Below is Macro defining the `execve`  
+[link to code](https://github.com/torvalds/linux/blob/22b8cc3e78f5448b4c5df00303817a9137cd663f/fs/exec.c#L2105-L2111)
 ```c
 SYSCALL_DEFINE3(execve,
 		const char __user *, filename,
@@ -196,6 +197,7 @@ SYSCALL_DEFINE3(execve,
 	return do_execve(getname(filename), argv, envp);
 }
 ```
+
 ```
 const char * → A string (character array).
 
@@ -207,6 +209,7 @@ const char __user *const __user * → A pointer to an array of user-space string
 The `getname` return the filename struct.  
 It copies the string from user space to kernel space and does some usage tracking things  
 
+[likn to code](https://github.com/torvalds/linux/blob/22b8cc3e78f5448b4c5df00303817a9137cd663f/include/linux/fs.h#L2294-L2300)
 ```c
 struct filename {
 	const char		*name;	/* pointer to actual string */
