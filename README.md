@@ -21,7 +21,7 @@ Computers are fundamentally simple machines that follow basic principles. If thi
 add eax, 512  ; Add 512 to EAX register
 sub eax, 200  ; Subtract 200 from EAX register
 ```
-```json
+```
 ; Machine Code (Binary)
 0: 05 00 02 00 00     add  eax,0x200
 5: 2d c8 00 00 00     sub  eax,0xc8
