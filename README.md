@@ -45,6 +45,7 @@ Other general Purpose Registers
 CPU cannot run an instruction without loading it into the RAM <br>
 To store the location of instruction in RAM, we use instruction pointer <br>
 ![cycle](https://cpu.land/images/fetch-execute-cycle.png) <br>
+https://github.com/Ayush0Chaudhary/computers/blob/main/exe-fetch.md
 
 pointer -> instruction 1 <br>
 cpu fetch instruction <br>
